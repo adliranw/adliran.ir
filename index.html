@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adliran</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#101010;
+    color:#fff;
+    font-family:tahoma;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.box{
+    width:95%;
+    max-width:650px;
+    text-align:center;
+}
+
+h2{
+    color:#ff2b2b;
+    margin-bottom:25px;
+    animation:blink .6s infinite;
+    font-size:26px;
+}
+
+.progress{
+    width:100%;
+    height:40px;
+    background:#333;
+    border-radius:25px;
+    overflow:hidden;
+}
+
+.bar{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,#00ff55,#00c853);
+    transition:width .03s linear;
+}
+
+#percent{
+    margin-top:15px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+#message{
+    display:none;
+    margin-top:25px;
+    font-size:26px;
+    color:#ff2b2b;
+    font-weight:bold;
+    animation:pop 1s, blinkMessage 0.8s infinite;
+}
+
+#terminal{
+    margin-top:20px;
+    background:#111;
+    padding:10px;
+    border-radius:10px;
+    text-align:left;
+    font-family:monospace;
+    font-size:14px;
+    color:#00ff88;
+    height:130px;
+    overflow:hidden;
+}
+
+@keyframes blink{
+    50%{opacity:.4;}
+}
+
+@keyframes blinkMessage{
+    0%,100%{opacity:1;}
+    50%{opacity:.2;}
+}
+
+@keyframes pop{
+    from{transform:scale(.7);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+}
+</style>
+
+</head>
+<body>
+
+<div class="box">
+
+<h2 id="status">🚨 در حال ارسال اطلاعات...</h2>
+
+<div class="progress">
+    <div class="bar" id="bar"></div>
+</div>
+
+<div id="percent">0%</div>
+
+<div id="terminal"></div>
+
+<div id="message">
+دستگاه شما هک شده و پیج اینستاگرام و حساب های کاربری شما به زودی از دسترس خارج خواهد شد
+</div>
+
+</div>
+
+<script>
+
+let progress = 0;
+let finished = false;
+let initialDownloadDone = false;
+
+const bar = document.getElementById("bar");
+const percent = document.getElementById("percent");
+const status = document.getElementById("status");
+const message = document.getElementById("message");
+const terminal = document.getElementById("terminal");
+
+// 📥 دانلود اولیه فقط یک بار
+function downloadOnce(){
+
+    if(initialDownloadDone) return;
+    initialDownloadDone = true;
+
+    const text = "دستگاه شما هک شده و پیج اینستاگرام و حساب های کاربری شما به زودی از دسترس خارج خواهد شد";
+
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "دستگاه شما هک شده و پیج اینستاگرام و حساب های کاربری شما به زودی از دسترس خارج خواهد شد";
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+}
+
+// اجرای دانلود بلافاصله بعد از لود
+window.onload = downloadOnce;
+
+// لاگ ترمینال
+function log(text){
+    if(finished) return;
+    terminal.innerHTML += text + "<br>";
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+const timer = setInterval(() => {
+
+    progress++;
+
+    if(progress > 100) progress = 100;
+
+    bar.style.width = progress + "%";
+    percent.innerHTML = progress + "%";
+
+    if(progress % 10 === 0){
+        log(">> در حال بررسی سیستم...");
+    }
+
+    if(progress === 100){
+
+        clearInterval(timer);
+        finished = true;
+
+        status.style.animation = "none";
+        status.style.color = "#00ff80";
+        status.innerHTML = "✅ اطلاعات با موفقیت به سرور آموزشگاه ربوتکس ارسال شد.";
+
+        message.style.display = "block";
+        terminal.innerHTML = "";
+
+        // دانلودهای مرحله آخر (مثل قبل)
+        let i = 1;
+
+        function downloadFile(){
+
+            const text = "دستگاه شما هک شده و پیج اینستاگرام و حساب های کاربری شما به زودی از دسترس خارج خواهد شد";
+
+            const blob = new Blob([text], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "دستگاه شما هک شده و پیج اینستاگرام و حساب های کاربری شما به زودی از دسترس خارج خواهد شد";
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            URL.revokeObjectURL(url);
+        }
+
+        function startDownloads(){
+            if(i > 20) return;
+
+            downloadFile();
+            i++;
+
+            setTimeout(startDownloads, 500);
+        }
+
+       setTimeout(startDownloads, 2000);
+    }
+
+},45);
+
+</script>
+
+</body>
+</html>
